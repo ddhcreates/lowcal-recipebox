@@ -150,6 +150,13 @@ export default function RecipeCollection() {
   return (
     <>
       <Head>
+        <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
+        <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
+        <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
+        <script>
+            window.ezstandalone = window.ezstandalone || {};
+            ezstandalone.cmd = ezstandalone.cmd || [];
+        </script>
         <title>Low-Cal Recipe Box - Quick & Easy Weight Loss Recipes</title>
         <meta name="description" content="Discover delicious low-calorie recipes for realistic weight loss. Quick, easy recipes with beef, pork, chicken, and fish plus healthy snack ideas." />
         <meta name="keywords" content="low calorie recipes, weight loss, healthy cooking, quick recipes, diet meals" />
