@@ -23,21 +23,21 @@ export default function RecipeCollection() {
 
   // Load ads when recipes are loaded and we're on the recipes section
   useEffect(() => {
-    if (!loading && activeSection === 'recipes' && filteredRecipes.length > 0 && !adsLoaded) {
+    if (!loading && activeSection === 'recipes' && recipes.length > 0 && !adsLoaded) {
       // Wait a bit for the DOM elements to be rendered
       const timer = setTimeout(() => {
-        if (typeof window !== 'undefined' && window.ezstandalone) {
+        if (typeof window !== 'undefined' && window.ezstandalone && window.ezstandalone.cmd) {
           // Load all ads at once for better performance
           window.ezstandalone.cmd.push(function () {
             window.ezstandalone.showAds(115, 111, 112, 113);
           });
           setAdsLoaded(true);
         }
-      }, 1000);
+      }, 2000);
       
       return () => clearTimeout(timer);
     }
-  }, [loading, activeSection, filteredRecipes.length, adsLoaded]);
+  }, [loading, activeSection, recipes.length, adsLoaded]);
 
   const loadAllData = async () => {
     try {
@@ -346,13 +346,8 @@ export default function RecipeCollection() {
                       items.push(
                         <div key={`ad-${adIndex}`} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 flex items-center justify-center min-h-[300px] col-span-1 md:col-span-2 lg:col-span-3">
                           <div className="w-full max-w-4xl">
-                            {/* Ezoic Ad Placeholder */}
-                            <div 
-                              id={`ezoic-pub-ad-placeholder-${adPlacement.id}`}
-                              className="w-full min-h-[250px] bg-white/5 rounded-xl flex items-center justify-center"
-                            >
-                              <span className="text-white/60 text-sm">Advertisement</span>
-                            </div>
+                            {/* Ezoic Ad Placeholder - NO STYLING on the actual placeholder div */}
+                            <div id={`ezoic-pub-ad-placeholder-${adPlacement.id}`}></div>
                           </div>
                         </div>
                       );
