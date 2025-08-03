@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
+import Script from 'next/script';
 
 export default function RecipeCollection() {
   const [recipes, setRecipes] = useState([]);
@@ -87,9 +88,11 @@ export default function RecipeCollection() {
 
         {recipe.photoLink && (
           <div className="w-full h-48 rounded-xl overflow-hidden mb-4 bg-gray-100">
-            <img 
+            <Image 
               src={recipe.photoLink} 
               alt={recipe.name}
+              width={400}
+              height={192}
               className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
               onError={(e) => e.target.parentElement.style.display = 'none'}
             />
@@ -150,13 +153,6 @@ export default function RecipeCollection() {
   return (
     <>
       <Head>
-        <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
-        <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
-        <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
-        <script>
-            window.ezstandalone = window.ezstandalone || {};
-            ezstandalone.cmd = ezstandalone.cmd || [];
-        </script>
         <title>Low-Cal Recipe Box - Quick & Easy Weight Loss Recipes</title>
         <meta name="description" content="Discover delicious low-calorie recipes for realistic weight loss. Quick, easy recipes with beef, pork, chicken, and fish plus healthy snack ideas." />
         <meta name="keywords" content="low calorie recipes, weight loss, healthy cooking, quick recipes, diet meals" />
@@ -165,6 +161,28 @@ export default function RecipeCollection() {
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://lowcal-recipebox.vercel.com" />
       </Head>
+
+      {/* Ezoic Scripts */}
+      <Script 
+        src="https://cmp.gatekeeperconsent.com/min.js" 
+        strategy="afterInteractive"
+        data-cfasync="false"
+      />
+      <Script 
+        src="https://the.gatekeeperconsent.com/cmp.min.js" 
+        strategy="afterInteractive"
+        data-cfasync="false"
+      />
+      <Script 
+        src="//www.ezojs.com/ezoic/sa.min.js" 
+        strategy="afterInteractive"
+      />
+      <Script id="ezoic-standalone" strategy="afterInteractive">
+        {`
+          window.ezstandalone = window.ezstandalone || {};
+          ezstandalone.cmd = ezstandalone.cmd || [];
+        `}
+      </Script>
 
       <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 scroll-smooth">
         <main className="container mx-auto px-4 py-8 max-w-7xl">
@@ -316,9 +334,11 @@ export default function RecipeCollection() {
                     )}
                     {snack.photo && (
                       <div className="w-full h-40 rounded-lg overflow-hidden bg-gray-200">
-                        <img 
+                        <Image 
                           src={snack.photo} 
                           alt={snack.name}
+                          width={400}
+                          height={160}
                           className="w-full h-full object-cover"
                           onError={(e) => e.target.parentElement.style.display = 'none'}
                         />
