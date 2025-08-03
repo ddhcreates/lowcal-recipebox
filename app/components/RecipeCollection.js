@@ -15,10 +15,29 @@ export default function RecipeCollection() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({ protein: 'all', veggie: 'all' });
   const [tipsExpanded, setTipsExpanded] = useState(false);
+  const [adsLoaded, setAdsLoaded] = useState(false);
 
   useEffect(() => {
     loadAllData();
   }, []);
+
+  // Load ads when recipes are loaded and we're on the recipes section
+  useEffect(() => {
+    if (!loading && activeSection === 'recipes' && filteredRecipes.length > 0 && !adsLoaded) {
+      // Wait a bit for the DOM elements to be rendered
+      const timer = setTimeout(() => {
+        if (typeof window !== 'undefined' && window.ezstandalone) {
+          // Load all ads at once for better performance
+          window.ezstandalone.cmd.push(function () {
+            window.ezstandalone.showAds(115, 111, 112, 113);
+          });
+          setAdsLoaded(true);
+        }
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading, activeSection, filteredRecipes.length, adsLoaded]);
 
   const loadAllData = async () => {
     try {
