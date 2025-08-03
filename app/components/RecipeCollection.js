@@ -113,7 +113,11 @@ export default function RecipeCollection() {
               width={400}
               height={192}
               className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-              onError={(e) => e.target.parentElement.style.display = 'none'}
+              unoptimized={true}
+              onError={(e) => {
+                console.log('Image failed to load:', recipe.photoLink);
+                e.target.parentElement.style.display = 'none';
+              }}
             />
           </div>
         )}
