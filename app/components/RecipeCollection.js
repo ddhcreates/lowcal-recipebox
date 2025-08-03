@@ -1,0 +1,320 @@
+"use client"
+
+import React, { useState, useEffect } from 'react';
+
+export default function RecipeCollection() {
+  const [recipes, setRecipes] = useState([]);
+  const [tips, setTips] = useState([]);
+  const [snacks, setSnacks] = useState([]);
+  const [prompts, setPrompts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState('recipes');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({ protein: 'all', veggie: 'all' });
+  const [tipsExpanded, setTipsExpanded] = useState(false);
+
+  useEffect(() => {
+    loadAllData();
+  }, []);
+
+  const loadAllData = async () => {
+    try {
+      const [recipesRes, tipsRes, snacksRes, promptsRes] = await Promise.all([
+        fetch('/api/recipes'),
+        fetch('/api/tips'),
+        fetch('/api/snacks'),
+        fetch('/api/prompts')
+      ]);
+
+      const [recipesData, tipsData, snacksData, promptsData] = await Promise.all([
+        recipesRes.json(),
+        tipsRes.json(),
+        snacksRes.json(),
+        promptsRes.json()
+      ]);
+
+      setRecipes(recipesData);
+      setTips(tipsData);
+      setSnacks(snacksData);
+      setPrompts(promptsData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredRecipes = recipes.filter(recipe => {
+    const matchesSearch = !searchQuery || 
+      recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recipe.ingredients.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesProtein = filters.protein === 'all' || 
+      recipe.protein.toLowerCase() === filters.protein;
+    
+    const matchesVeggie = filters.veggie === 'all' || 
+      recipe.veggie === filters.veggie;
+
+    return matchesSearch && matchesProtein && matchesVeggie;
+  });
+
+  const RecipeCard = ({ recipe, index }) => {
+    const [expanded, setExpanded] = useState(false);
+    const proteinClass = recipe.protein.toLowerCase().replace(/[^a-z]/g, '');
+
+    return (
+      <div className={`bg-white rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-t-4 ${
+        proteinClass === 'beef' ? 'border-red-500' :
+        proteinClass === 'pork' ? 'border-orange-500' :
+        proteinClass === 'chicken' ? 'border-yellow-500' :
+        proteinClass === 'fish' ? 'border-blue-500' :
+        'border-purple-500'
+      }`}>
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-xl font-bold text-gray-800">{recipe.name}</h3>
+          <span className={`px-3 py-1 rounded-full text-xs font-medium text-white ${
+            proteinClass === 'beef' ? 'bg-red-500' :
+            proteinClass === 'pork' ? 'bg-orange-500' :
+            proteinClass === 'chicken' ? 'bg-yellow-500' :
+            proteinClass === 'fish' ? 'bg-blue-500' :
+            'bg-purple-500'
+          }`}>
+            {recipe.protein}
+          </span>
+        </div>
+
+        {recipe.photoLink && (
+          <div className="w-full h-48 rounded-xl overflow-hidden mb-4 bg-gray-100">
+            <img 
+              src={recipe.photoLink} 
+              alt={recipe.name}
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              onError={(e) => e.target.parentElement.style.display = 'none'}
+            />
+          </div>
+        )}
+
+        <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+          <span className="flex items-center gap-1">
+            🥬 {recipe.veggie === 'true' ? 'With Veggies' : 'No Veggies'}
+          </span>
+        </div>
+
+        <div className={`text-gray-700 leading-relaxed ${expanded ? '' : 'max-h-32 overflow-hidden relative'}`}>
+          <div className="mb-3">
+            <strong className="text-gray-800">Ingredients:</strong>
+            <div className="mt-1">
+              {recipe.ingredients.split('•').filter(item => item.trim()).map((item, i) => (
+                <div key={i} className="ml-2">• {item.trim()}</div>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <strong className="text-gray-800">Steps:</strong>
+            <div className="mt-1">
+              {recipe.steps.split(/\d+\./).filter(step => step.trim()).map((step, i) => (
+                <div key={i} className="ml-2 mb-1">{i + 1}. {step.trim()}</div>
+              ))}
+            </div>
+          </div>
+
+          {!expanded && (
+            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+          )}
+        </div>
+
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="mt-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full text-sm font-medium hover:shadow-md transition-all duration-300"
+        >
+          {expanded ? 'Show Less' : 'Show More'}
+        </button>
+      </div>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl">Loading your delicious recipes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Header */}
+        <div className="text-center mb-8 bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">🍽️ Low-Cal Recipe Collection</h1>
+          <p className="text-xl text-white/90">Quick, easy, and delicious recipes for realistic weight loss</p>
+        </div>
+
+        {/* Tips Section */}
+        <div className="bg-white rounded-2xl p-6 mb-8 shadow-lg border-l-4 border-green-500">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">💡 My Thoughts and Tips</h2>
+          <ul className="space-y-2">
+            {tips.slice(0, tipsExpanded ? tips.length : 2).map((tip, index) => (
+              <li key={index} className="flex items-start gap-3 text-gray-700">
+                <span className="text-green-500 font-bold mt-1">✓</span>
+                <span>{tip}</span>
+              </li>
+            ))}
+          </ul>
+          {tips.length > 2 && (
+            <button
+              onClick={() => setTipsExpanded(!tipsExpanded)}
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded-full text-sm font-medium hover:bg-green-600 transition-colors"
+            >
+              {tipsExpanded ? 'Show Less Tips' : 'Show More Tips'}
+            </button>
+          )}
+        </div>
+
+        {/* Section Toggles */}
+        <div className="flex justify-center gap-4 mb-8 flex-wrap">
+          {[
+            { key: 'recipes', label: '📋 Recipes' },
+            { key: 'snacks', label: '🥜 Low-Cal Snacks' },
+            { key: 'prompts', label: '💬 ChatGPT Prompts' }
+          ].map(section => (
+            <button
+              key={section.key}
+              onClick={() => setActiveSection(section.key)}
+              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
+                activeSection === section.key
+                  ? 'bg-white text-purple-600 shadow-lg'
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+            >
+              {section.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Recipes Section */}
+        {activeSection === 'recipes' && (
+          <div>
+            {/* Filters */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-white/20">
+              <div className="flex flex-col md:flex-row gap-4 items-center">
+                <input
+                  type="text"
+                  placeholder="Search recipes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 px-4 py-3 rounded-full border-none outline-none bg-white/90 placeholder-gray-500"
+                />
+                
+                <div className="flex gap-2 flex-wrap">
+                  {['all', 'beef', 'pork', 'chicken', 'fish'].map(protein => (
+                    <button
+                      key={protein}
+                      onClick={() => setFilters(prev => ({ ...prev, protein }))}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        filters.protein === protein
+                          ? 'bg-white text-purple-600'
+                          : 'bg-white/20 text-white hover:bg-white/30'
+                      }`}
+                    >
+                      {protein === 'all' ? 'All' : 
+                       protein === 'beef' ? '🥩 Beef' :
+                       protein === 'pork' ? '🐷 Pork' :
+                       protein === 'chicken' ? '🐔 Chicken' :
+                       '🐟 Fish'}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  {[
+                    { key: 'all', label: 'All Veggies' },
+                    { key: 'true', label: 'With Veggies' },
+                    { key: 'false', label: 'No Veggies' }
+                  ].map(veggie => (
+                    <button
+                      key={veggie.key}
+                      onClick={() => setFilters(prev => ({ ...prev, veggie: veggie.key }))}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        filters.veggie === veggie.key
+                          ? 'bg-white text-purple-600'
+                          : 'bg-white/20 text-white hover:bg-white/30'
+                      }`}
+                    >
+                      {veggie.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Recipes Grid */}
+            {filteredRecipes.length === 0 ? (
+              <div className="text-center text-white bg-white/10 backdrop-blur-sm rounded-2xl p-12">
+                <h3 className="text-2xl font-bold mb-2">No recipes found</h3>
+                <p>Try adjusting your search terms or filters.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredRecipes.map((recipe, index) => (
+                  <RecipeCard key={index} recipe={recipe} index={index} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Snacks Section */}
+        {activeSection === 'snacks' && (
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">🥜 Low-Calorie Tasty Snacks</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {snacks.map((snack, index) => (
+                <div key={index} className="bg-gray-50 rounded-xl p-6 border-l-4 border-green-500">
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">{snack.name}</h3>
+                  {snack.calories && (
+                    <div className="text-red-600 font-bold text-sm mb-3">📊 {snack.calories} calories</div>
+                  )}
+                  {snack.details && (
+                    <p className="text-gray-700 leading-relaxed mb-4">{snack.details}</p>
+                  )}
+                  {snack.photo && (
+                    <div className="w-full h-40 rounded-lg overflow-hidden bg-gray-200">
+                      <img 
+                        src={snack.photo} 
+                        alt={snack.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => e.target.parentElement.style.display = 'none'}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Prompts Section */}
+        {activeSection === 'prompts' && (
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">💬 My ChatGPT Recipe Prompts</h2>
+            <div className="space-y-6">
+              {prompts.map((prompt, index) => (
+                <div key={index} className="bg-gray-50 rounded-xl p-6 border-l-4 border-blue-500">
+                  <h3 className="text-xl font-bold text-gray-800 mb-3">🍳 Prompt {index + 1}</h3>
+                  <div className="bg-white p-4 rounded-lg border font-mono text-sm text-gray-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                    {prompt}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
