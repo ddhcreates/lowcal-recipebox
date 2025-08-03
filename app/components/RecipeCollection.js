@@ -310,9 +310,37 @@ export default function RecipeCollection() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredRecipes.map((recipe, index) => (
-                    <RecipeCard key={index} recipe={recipe} index={index} />
-                  ))}
+                  {filteredRecipes.map((recipe, index) => {
+                    const items = [<RecipeCard key={`recipe-${index}`} recipe={recipe} index={index} />];
+                    
+                    // Add ads after every 3rd recipe
+                    if ((index + 1) % 3 === 0) {
+                      const adIndex = Math.floor(index / 3);
+                      const adPlacements = [
+                        { id: 115, name: 'incontent_5' },
+                        { id: 111, name: 'mid_content' },
+                        { id: 112, name: 'long_content' },
+                        { id: 113, name: 'longer_content' }
+                      ];
+                      const adPlacement = adPlacements[adIndex % adPlacements.length];
+                      
+                      items.push(
+                        <div key={`ad-${adIndex}`} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 flex items-center justify-center min-h-[300px] col-span-1 md:col-span-2 lg:col-span-3">
+                          <div className="w-full max-w-4xl">
+                            {/* Ezoic Ad Placeholder */}
+                            <div 
+                              id={`ezoic-pub-ad-placeholder-${adPlacement.id}`}
+                              className="w-full min-h-[250px] bg-white/5 rounded-xl flex items-center justify-center"
+                            >
+                              <span className="text-white/60 text-sm">Advertisement</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    return items;
+                  }).flat()}
                 </div>
               )}
             </section>
