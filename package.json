@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.5.0",
     "google-auth-library": "^10.2.0",
     "google-spreadsheet": "^4.1.5",
     "next": "15.4.5",
