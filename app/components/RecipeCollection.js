@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
 
 export default function RecipeCollection() {
   const [recipes, setRecipes] = useState([]);
@@ -126,7 +127,7 @@ export default function RecipeCollection() {
 
         <button
           onClick={() => setExpanded(!expanded)}
-          className="mt-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full text-sm font-medium hover:shadow-md transition-all duration-300"
+          className="mt-4 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full text-sm font-medium hover:shadow-lg hover:from-cyan-400 hover:to-blue-400 transition-all duration-300"
         >
           {expanded ? 'Show Less' : 'Show More'}
         </button>
@@ -145,11 +146,21 @@ export default function RecipeCollection() {
     );
   }
 
+  <Head>
+  <title>Low-Cal Recipe Collection - Quick & Easy Weight Loss Recipes</title>
+  <meta name="description" content="Discover delicious low-calorie recipes for realistic weight loss. Quick, easy recipes with beef, pork, chicken, and fish plus healthy snack ideas." />
+  <meta name="keywords" content="low calorie recipes, weight loss, healthy cooking, quick recipes, diet meals" />
+  <meta property="og:title" content="Low-Cal Recipe Collection" />
+  <meta property="og:description" content="Quick, easy, and delicious recipes for realistic weight loss" />
+  <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://lowcal-recipebox.vercel.com" />
+</Head>
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
-        <div className="text-center mb-8 bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+        <div className="text-center mb-8 bg-white/20 backdrop-blur-md shadow-xl rounded-2xl p-8 border border-white/20">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">🍽️ Low-Cal Recipe Collection</h1>
           <p className="text-xl text-white/90">Quick, easy, and delicious recipes for realistic weight loss</p>
         </div>
